@@ -143,7 +143,6 @@ bool tree_path(size_t count, size_t idx, uint32_t *path)
     if (idx == 0 || idx == 1)
     {
       *path = (*path << 1) | (idx == 0 ? 0 : 1);
-      idx = 0;
     }
   }
   return true;
