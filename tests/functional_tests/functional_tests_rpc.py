@@ -11,9 +11,9 @@ import os
 
 USAGE = 'usage: functional_tests_rpc.py <python> <srcdir> <builddir> [<tests-to-run> | all]'
 DEFAULT_TESTS = [
-  'address_book', 'bans', 'blockchain', 'cold_signing', 'daemon_info', 'get_output_distribution',
-  'integrated_address', 'k_anonymity', 'mining', 'multisig', 'p2p', 'proofs', 'rpc_payment',
-  'sign_message', 'transfer', 'txpool', 'uri', 'validate_address', 'wallet'
+  'address_book', 'bans', 'blockchain', 'cold_signing', 'daemon_info', 'encrypt_decrypt_message', 
+  'get_output_distribution', 'integrated_address', 'k_anonymity', 'mining', 'multisig', 'p2p',
+  'proofs', 'rpc_payment', 'sign_message', 'transfer', 'txpool', 'uri', 'validate_address', 'wallet'
 ]
 try:
   python = sys.argv[1]

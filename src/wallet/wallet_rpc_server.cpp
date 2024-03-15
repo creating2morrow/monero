@@ -50,6 +50,7 @@ using namespace epee;
 #include "misc_language.h"
 #include "string_coding.h"
 #include "string_tools.h"
+#include "basen.hpp"
 #include "crypto/hash.h"
 #include "mnemonics/electrum-words.h"
 #include "rpc/rpc_args.h"
@@ -2218,6 +2219,58 @@ namespace tools
       case tools::wallet2::sign_with_view_key: res.signature_type = "view"; break;
       default: res.signature_type = "invalid"; break;
     }
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_encrypt(const wallet_rpc::COMMAND_RPC_ENCRYPT::request& req, wallet_rpc::COMMAND_RPC_ENCRYPT::response& res, epee::json_rpc::error& er, const connection_context *ctx)
+  {
+    if (!m_wallet) return not_open(er);
+    if (m_restricted)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_DENIED;
+      er.message = "Command unavailable in restricted mode.";
+      return false;
+    }
+    try
+    {
+      const auto& secret_key = m_wallet->get_account().get_keys().m_spend_secret_key;
+      std::string ciphertext = m_wallet->encrypt(req.plaintext, secret_key, req.authenticated);
+      std::string encoded;
+      bn::encode_b64(ciphertext.begin(), ciphertext.end(), back_inserter(encoded));
+      res.ciphertext_base64 = encoded;
+    }
+    catch (const std::exception& e)
+    {
+      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_ENCRYPT);
+      return false;
+    }
+
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_decrypt(const wallet_rpc::COMMAND_RPC_DECRYPT::request& req, wallet_rpc::COMMAND_RPC_DECRYPT::response& res, epee::json_rpc::error& er, const connection_context *ctx)
+  {
+    if (!m_wallet) return not_open(er);
+    if (m_restricted)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_DENIED;
+      er.message = "Command unavailable in restricted mode.";
+      return false;
+    }
+    try
+    {
+      std::string decoded;
+      std::string ct = req.ciphertext_base64;
+      bn::decode_b64(ct.begin(), ct.end(), back_inserter(decoded));
+      const auto& secret_key = m_wallet->get_account().get_keys().m_spend_secret_key;
+      res.plaintext = m_wallet->decrypt(decoded, secret_key, req.authenticated);
+    }
+    catch (const std::exception& e)
+    {
+      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_DECRYPT);
+      return false;
+    }
+
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@
 // advance which version they will stop working with
 // Don't go over 32767 for any of these
 #define WALLET_RPC_VERSION_MAJOR 1
-#define WALLET_RPC_VERSION_MINOR 27
+#define WALLET_RPC_VERSION_MINOR 28
 #define MAKE_WALLET_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define WALLET_RPC_VERSION MAKE_WALLET_RPC_VERSION(WALLET_RPC_VERSION_MAJOR, WALLET_RPC_VERSION_MINOR)
 namespace tools
@@ -1699,6 +1699,56 @@ namespace wallet_rpc
     typedef epee::misc_utils::struct_init<response_t> response;
   };
 
+struct COMMAND_RPC_ENCRYPT
+  {
+    struct request_t
+    {
+      std::string plaintext;
+      bool authenticated;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(plaintext);
+        KV_SERIALIZE(authenticated);
+      END_KV_SERIALIZE_MAP()
+    };
+    typedef epee::misc_utils::struct_init<request_t> request;
+
+    struct response_t
+    {
+      std::string ciphertext_base64;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(ciphertext_base64);
+      END_KV_SERIALIZE_MAP()
+    };
+    typedef epee::misc_utils::struct_init<response_t> response;
+  };
+
+  struct COMMAND_RPC_DECRYPT
+  {
+    struct request_t
+    {
+      std::string ciphertext_base64;
+      bool authenticated;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(ciphertext_base64);
+        KV_SERIALIZE(authenticated);
+      END_KV_SERIALIZE_MAP()
+    };
+    typedef epee::misc_utils::struct_init<request_t> request;
+
+    struct response_t
+    {
+      std::string plaintext;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(plaintext);
+      END_KV_SERIALIZE_MAP()
+    };
+    typedef epee::misc_utils::struct_init<response_t> response;
+  };
+  
   struct COMMAND_RPC_EXPORT_OUTPUTS
   {
     struct request_t
